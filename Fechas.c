@@ -2,13 +2,13 @@
 #include <stdio.h>
 
 typedef struct {
-    int dia, mes, year;
+    unsigned int dia, mes, year;
 }tFecha;
 const int diasBisiesto[] = {0,31,29,31,30,31,30,31,31,30,31,30,31};
 const int diasNoBisiesto[] = {0,31,28,31,30,31,30,31,31,30,31,30,31};
 
 tFecha crearFecha();
-int validarFecha(tFecha fecha);
+int validarFecha(tFecha fecha, int AMinimo);
 int determinarBisiesto(const unsigned int year);
 void diaSemana();
 
@@ -17,20 +17,46 @@ int main(){
     return 0;
 }
 
-tFecha crearFecha() {
+tFecha crearFecha(int Aminimo) {
     tFecha fecha;
     int fechaValida;
     do {
         printf("Insertar una fecha de formato dd/mm/aaaa: ");
         scanf("%d/%d/%d", &fecha.dia, &fecha.mes, &fecha.year);
-        fechaValida = validarFecha(fecha);
+        fechaValida = validarFecha(fecha, Aminimo);
     }while(fechaValida == 1);
     return fecha;
 }
 int determinarBisiesto(const unsigned int year) {
     return (year %4 == 0 && (year %100 == 0 || year %400 == 0))?0:1;
 }
-int validarFecha(tFecha fecha) {
+int validarFecha(tFecha fecha, int AMinimo) {
+    int esBisiesto;
+    if(fecha.year > AMinimo) {
+        esBisiesto = determinarBisiesto(fecha.year);
+    } else {
+        printf("Error en el anio.");
+        return 1;
+    }
+    if(fecha.mes > 12 || fecha.mes < 1){
+        printf("Mes inexistente.");
+        return 1;
+    }
+    if(esBisiesto == 0){
+        if(fecha.dia < 1 || fecha.dia > diasBisiesto[fecha.mes]){
+            printf("Ingreso de dias invalido, el mes %d tiene %d dias.", fecha.mes, diasBisiesto[fecha.mes]);
+            return 1;
+        }
+    } else
+    {
+        if (fecha.mes < 1 || fecha.mes > diasNoBisiesto[fecha.mes])
+        {
+            printf("Ingreso de dias invalido, el mes %d tiene %d dias.", fecha.mes, diasNoBisiesto[fecha.mes]);
+            return 1;
+        }
+        
+    }
+    
 
 }
 
@@ -39,11 +65,10 @@ void diaSemana() {
     tFecha fecha;
     int diaFinal;
 
-    do
-    {
-        printf("Ingresar una fecha posterior al 1752.\n");
-        fecha = crearFecha();
-    } while (fecha.year < 1752);
+    
+    printf("Ingresar una fecha posterior al 1752.\n");
+    fecha = crearFecha(1752);
+    
 
     diaFinal = (fecha.year + fecha.year/4 + fecha.year/400 - fecha.year/100 + t[fecha.mes -1] + fecha.dia) % 7;
     switch (diaFinal)
